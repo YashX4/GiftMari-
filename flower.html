@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bloom</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <a class="back-link" href="index.html">← back to the songs</a>
+
+    <p class="camera-caption">I know you said you don't get flowers often, so I made this for you baby.</p>
+
+    <div class="camera-body">
+      <img class="camera-frame-img" src="assets/camera-frame.png" alt="" />
+
+      <div class="screen-window">
+        <div class="stage" id="stage">
+          <video id="video" playsinline autoplay muted></video>
+          <canvas id="output"></canvas>
+
+          <div class="af-corner af-tl"></div>
+          <div class="af-corner af-tr"></div>
+          <div class="af-corner af-bl"></div>
+          <div class="af-corner af-br"></div>
+
+          <div class="hud hud-left">
+            <span class="rec-dot" id="recDot"></span>
+            <span id="hudAf">AF</span>
+          </div>
+          <div class="hud hud-right">
+            <span class="battery-icon"><span class="battery-fill"></span></span>
+            <span id="hudFrameCount">000</span>
+          </div>
+
+          <div class="overlay" id="startOverlay">
+            <button id="startBtn">start camera</button>
+          </div>
+
+          <div class="overlay" id="loadingOverlay" hidden>
+            <p class="loading-text" id="loadingText">loading…</p>
+          </div>
+
+          <div class="moment-overlay" id="momentOverlay">
+            <p id="momentText"></p>
+          </div>
+
+          <div class="flash-overlay" id="flashOverlay"></div>
+        </div>
+      </div>
+
+      <span class="power-led" id="powerLed"></span>
+      <button class="shutter-btn" id="shutterBtn" disabled title="capture photo"></button>
+    </div>
+
+    <div class="controls">
+      <div class="modes" id="modes">
+        <button class="mode-btn mode-btn-lily" data-mode="lily" disabled>lily</button>
+        <button class="mode-btn mode-btn-chrys" data-mode="chrys" disabled>chrys</button>
+        <button class="mode-btn mode-btn-bouquet active" data-mode="bouquet" disabled>bouquet</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

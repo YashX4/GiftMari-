@@ -1,0 +1,428 @@
+:root {
+  color-scheme: light;
+  --bg: #eef1f6;
+  --ink: #16233d;
+  --muted: #46597a;
+  --accent: #7a4a22;
+  --paper: #eef1f6;
+  --blush: #7a4a22;
+  --blush-deep: #4a2c12;
+  --blush-text: #eef1f6;
+  --gold: #b8823a;
+  --lcd-green: #4d9d63;
+  --script-font: "Caveat", cursive;
+  --serif-font: "Playfair Display", Georgia, serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(180deg, #eef1f6 0%, #e2e7ee 50%, #d6dee8 100%);
+  color: var(--ink);
+  font-family: var(--serif-font);
+  display: flex;
+  justify-content: center;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 980px;
+  padding: 40px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.back-link {
+  align-self: flex-start;
+  font-family: var(--script-font);
+  font-size: 1.25rem;
+  color: var(--muted);
+  text-decoration: none;
+  margin-bottom: 16px;
+  transition: color 0.15s ease;
+}
+
+.back-link:hover {
+  color: var(--accent);
+}
+
+.camera-caption {
+  align-self: center;
+  font-family: var(--script-font);
+  font-size: 1.6rem;
+  color: var(--ink);
+  text-align: center;
+  max-width: 560px;
+  margin: 0 0 22px;
+  line-height: 1.4;
+}
+
+.camera-body {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 541 / 369;
+}
+
+.camera-frame-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+  z-index: 3;
+  filter: drop-shadow(0 20px 50px rgba(0, 0, 0, 0.45));
+}
+
+/* Positioned to match the transparent screen cutout in camera-frame.png
+   (measured from the source image: left 13.49%, top 21.68%, 51.76% x 56.91%). */
+.screen-window {
+  position: absolute;
+  left: 13.49%;
+  top: 21.68%;
+  width: 51.76%;
+  height: 56.91%;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #05070a;
+}
+
+.stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 100%;
+  width: auto;
+  aspect-ratio: 16 / 9;
+  transform: translate(-50%, -50%);
+  background: #05070a;
+}
+
+/* Positioned over the photo's own printed LED / OK button (measured from
+   the source image). Purely transparent hit-areas / glow — the visuals are
+   the real photo underneath. */
+.power-led {
+  position: absolute;
+  left: 67.8%;
+  top: 41.2%;
+  width: 3.2%;
+  height: 3.6%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: transparent;
+  pointer-events: none;
+  z-index: 4;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.power-led.on {
+  background: rgba(111, 224, 138, 0.55);
+  box-shadow: 0 0 8px 3px rgba(111, 224, 138, 0.7);
+}
+
+.shutter-btn {
+  position: absolute;
+  left: 71.9%;
+  top: 59.6%;
+  width: 16.6%;
+  height: 24.4%;
+  transform: translate(-50%, -50%);
+  padding: 0;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 4;
+  transition: filter 0.15s ease, transform 0.08s ease;
+}
+
+.shutter-btn:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.shutter-btn:not(:disabled):active {
+  transform: translate(-50%, -50%) scale(0.94);
+}
+
+.shutter-btn:disabled {
+  cursor: default;
+}
+
+.shutter-btn:focus {
+  outline: none;
+}
+
+.shutter-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 3px;
+}
+
+.af-corner {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border: 2px solid rgba(22, 35, 61, 0.65);
+  opacity: 0.6;
+  pointer-events: none;
+  transition: opacity 0.3s ease, border-color 0.3s ease;
+  z-index: 2;
+}
+
+.af-corner.active {
+  opacity: 1;
+  border-color: #7CFC9A;
+}
+
+.af-tl { top: 14px; left: 14px; border-right: none; border-bottom: none; }
+.af-tr { top: 14px; right: 14px; border-left: none; border-bottom: none; }
+.af-bl { bottom: 14px; left: 14px; border-right: none; border-top: none; }
+.af-br { bottom: 14px; right: 14px; border-left: none; border-top: none; }
+
+.hud {
+  position: absolute;
+  top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(230, 235, 230, 0.85);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.hud-left { left: 14px; }
+.hud-right { right: 14px; }
+
+.rec-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #666;
+}
+
+.rec-dot.live {
+  background: #ff4d4d;
+  box-shadow: 0 0 6px #ff4d4d;
+  animation: rec-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes rec-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.battery-icon {
+  display: inline-flex;
+  align-items: center;
+  width: 16px;
+  height: 9px;
+  border: 1px solid rgba(230, 235, 230, 0.85);
+  border-radius: 2px;
+  padding: 1px;
+  position: relative;
+}
+
+.battery-icon::after {
+  content: "";
+  position: absolute;
+  right: -3px;
+  top: 2px;
+  width: 2px;
+  height: 3px;
+  background: rgba(230, 235, 230, 0.85);
+}
+
+.battery-fill {
+  display: block;
+  width: 70%;
+  height: 100%;
+  background: #7CFC9A;
+}
+
+.flash-overlay {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.flash-overlay.flash {
+  animation: shutter-flash 0.35s ease-out;
+}
+
+@keyframes shutter-flash {
+  0% { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+#video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#output {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: rgba(5, 7, 10, 0.72);
+  backdrop-filter: blur(4px);
+  text-align: center;
+  padding: 24px;
+}
+
+.overlay[hidden] {
+  display: none;
+}
+
+.moment-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  background: rgba(5, 7, 10, 0);
+  pointer-events: none;
+  transition: background 0.9s ease;
+}
+
+.moment-overlay.active {
+  background: rgba(5, 7, 10, 0.78);
+}
+
+.moment-overlay p {
+  font-size: 1.7rem;
+  line-height: 1.5;
+  max-width: 620px;
+  color: var(--blush-text);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 1s ease, transform 1s ease;
+}
+
+.moment-overlay.active p {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.loading-text {
+  color: #cbb9ae;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+}
+
+button {
+  font-family: var(--script-font);
+  font-size: 1.3rem;
+  letter-spacing: 0.02em;
+  padding: 12px 26px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(180deg, #e8d5b7, #c08a3e 55%, #8b5e34 100%);
+  color: #16233d;
+  cursor: pointer;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.15),
+    0 4px 10px rgba(0, 0, 0, 0.35);
+  transition: transform 0.08s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+button:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+button:not(:disabled):active {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+  filter: grayscale(0.4);
+}
+
+.controls {
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(22, 35, 61, 0.1);
+}
+
+.modes {
+  display: flex;
+  gap: 10px;
+}
+
+.mode-btn {
+  padding: 10px 20px;
+  font-size: 1.1rem;
+}
+
+.mode-btn-lily {
+  background: linear-gradient(180deg, #eeddc0, #c08a3e 55%, #8b5e34 100%);
+  color: #16233d;
+}
+
+.mode-btn-chrys {
+  background: linear-gradient(180deg, #b8823a, #8b5e34 55%, #4a3018 100%);
+  color: #eef1f6;
+}
+
+.mode-btn-bouquet {
+  background: linear-gradient(180deg, #2e4d74, var(--ink) 55%, #0a1526 100%);
+  color: var(--blush-text);
+}
+
+.mode-btn.active {
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.2),
+    0 0 0 2px rgba(255, 255, 255, 0.5),
+    0 4px 14px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+}

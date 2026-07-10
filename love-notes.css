@@ -1,0 +1,361 @@
+:root {
+  color-scheme: light;
+  --paper: #eef1f6;
+  --paper-dark: #d6dee8;
+  --ink: #16233d;
+  --ink-soft: #46597a;
+  --blush: #7a4a22;
+  --blush-deep: #4a2c12;
+  --blush-text: #eef1f6;
+  --gold: #b8823a;
+  --vinyl: #211d1d;
+  --vinyl-groove: #322b2b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+html {
+  scroll-snap-type: y proximity;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(180deg, #eef1f6 0%, #e2e7ee 50%, #d6dee8 100%);
+  color: var(--ink);
+  font-family: "Playfair Display", Georgia, serif;
+}
+
+.reel {
+  display: flex;
+  flex-direction: column;
+}
+
+section {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+  scroll-snap-align: start;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- Cover card --- */
+
+.cover-card .kicker {
+  font-family: "Caveat", cursive;
+  font-size: 1.9rem;
+  color: var(--blush-deep);
+  margin: 0 0 8px;
+}
+
+.cover-card .lede {
+  color: var(--ink-soft);
+  font-family: "Caveat", cursive;
+  font-size: 1.55rem;
+  line-height: 1.5;
+  max-width: 480px;
+  margin: 28px 0 0;
+}
+
+.cassette-cover {
+  width: min(420px, 80vw);
+  margin-top: 8px;
+  filter: drop-shadow(0 18px 34px rgba(22, 35, 61, 0.35));
+  transform: rotate(-2deg);
+  transition: transform 0.3s ease;
+}
+
+.cassette-cover:hover {
+  transform: rotate(0deg) scale(1.02);
+}
+
+.scroll-cue {
+  margin-top: 32px;
+  font-size: 1.8rem;
+  color: var(--blush-deep);
+  animation: bob 2.2s ease-in-out infinite;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(10px); }
+}
+
+/* --- Track cards --- */
+
+.track-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(32px, 7vw, 96px);
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.track-card.reverse {
+  flex-direction: row-reverse;
+}
+
+.record-wrap {
+  flex: none;
+}
+
+.record {
+  width: clamp(320px, 40vw, 460px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(
+      circle at center,
+      var(--vinyl) 0px,
+      var(--vinyl) 2px,
+      var(--vinyl-groove) 3px,
+      var(--vinyl) 4px
+    );
+  box-shadow: 0 20px 45px rgba(22, 35, 61, 0.35), inset 0 0 0 6px #171414;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: spin 24s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.record-label {
+  width: 68%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px rgba(22, 35, 61, 0.15), 0 2px 6px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.photo-frame {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.photo-frame:hover {
+  filter: brightness(1.05);
+}
+
+.photo-frame.placeholder {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--paper-dark),
+    var(--paper-dark) 8px,
+    var(--paper) 8px,
+    var(--paper) 16px
+  );
+}
+
+.photo-frame.has-photo {
+  background: none;
+}
+
+.photo-frame.has-photo .placeholder-prompt {
+  display: none;
+}
+
+.placeholder-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.placeholder-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+  color: var(--blush-deep);
+}
+
+.placeholder-text {
+  font-family: "Caveat", cursive;
+  font-size: 1.35rem;
+  line-height: 1.25;
+  color: var(--ink-soft);
+  padding: 0 10px;
+}
+
+.photo-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.note-wrap {
+  flex: 1;
+  min-width: 0;
+  max-width: 520px;
+  text-align: left;
+}
+
+.track-index {
+  font-family: "Caveat", cursive;
+  font-size: 1.4rem;
+  color: var(--gold);
+  margin: 0 0 2px;
+}
+
+.track-title {
+  font-size: clamp(1.9rem, 4.2vw, 2.5rem);
+  font-weight: 600;
+  font-style: italic;
+  margin: 0 0 4px;
+  line-height: 1.25;
+}
+
+.track-title-sub {
+  font-size: 0.6em;
+  font-style: normal;
+  color: var(--ink-soft);
+}
+
+.track-artist {
+  font-family: "Caveat", cursive;
+  font-size: 1.6rem;
+  color: var(--ink-soft);
+  margin: 0 0 22px;
+}
+
+.spotify-embed {
+  margin-bottom: 22px;
+}
+
+.lyrics-text {
+  background: var(--paper);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: 1.1rem;
+  line-height: 1.65;
+  color: var(--ink);
+  box-shadow: 0 8px 20px rgba(22, 35, 61, 0.15);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-height: 320px;
+  overflow-y: auto;
+  overflow-anchor: none;
+}
+
+.lyric-line {
+  margin: 0 0 8px;
+  text-align: start;
+  unicode-bidi: plaintext;
+}
+
+.lyrics-retry {
+  font-family: "Caveat", cursive;
+  font-size: 1.1rem;
+  color: var(--blush-deep);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--blush-deep);
+  padding: 0;
+  cursor: pointer;
+  margin-top: 8px;
+  display: block;
+}
+
+.lyric-highlight {
+  background: var(--blush);
+  color: var(--blush-text);
+  font-weight: 700;
+  padding: 6px 10px;
+  margin: 0 -10px 8px;
+  border-radius: 4px;
+}
+
+.lyric-translation {
+  display: block;
+  font-family: "Caveat", cursive;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--blush-text);
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+
+/* --- Finale card --- */
+
+.finale-card .kicker {
+  font-family: "Caveat", cursive;
+  font-size: 1.9rem;
+  color: var(--blush-deep);
+  margin: 0 0 8px;
+}
+
+.finale-card h2 {
+  font-size: clamp(2.2rem, 6vw, 3.2rem);
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.3;
+  margin: 0 0 38px;
+  max-width: 720px;
+}
+
+.bloom-btn {
+  font-family: "Caveat", cursive;
+  font-size: 1.8rem;
+  color: #fff;
+  text-decoration: none;
+  background: linear-gradient(180deg, var(--blush), var(--blush-deep));
+  padding: 18px 42px;
+  border-radius: 999px;
+  box-shadow: 0 10px 25px rgba(74, 44, 18, 0.5);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bloom-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(74, 44, 18, 0.6);
+}
+
+@media (max-width: 720px) {
+  .track-card,
+  .track-card.reverse {
+    flex-direction: column;
+  }
+
+  .note-wrap {
+    text-align: center;
+    max-width: 100%;
+  }
+}
