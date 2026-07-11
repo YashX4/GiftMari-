@@ -147,6 +147,158 @@ function loadLyricsFor(card, lyricsArtist, lyricsTitle, highlight) {
     });
 }
 
+// --- Turntable scratch: drag a record to spin it by hand, DJ-style. The
+// scratch noise is synthesized (filtered noise, no audio file) and shared
+// across records since only one is ever in view/being dragged at a time. ---
+
+let scratchEngine = null;
+
+function getScratchEngine() {
+  if (scratchEngine) return scratchEngine;
+
+  let ctx = null;
+  let filter = null;
+  let gain = null;
+
+  function ensureGraph() {
+    if (ctx) return;
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+    const bufferSize = ctx.sampleRate * 2;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    noise.loop = true;
+
+    filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.Q.value = 6;
+    filter.frequency.value = 700;
+
+    gain = ctx.createGain();
+    gain.gain.value = 0;
+
+    noise.connect(filter).connect(gain).connect(ctx.destination);
+    noise.start();
+  }
+
+  scratchEngine = {
+    start() {
+      ensureGraph();
+      if (ctx.state === "suspended") ctx.resume();
+    },
+    update(velocityDegPerMs) {
+      if (!ctx) return;
+      const speed = Math.min(Math.abs(velocityDegPerMs), 3);
+      const now = ctx.currentTime;
+      filter.frequency.setTargetAtTime(500 + speed * 900, now, 0.03);
+      gain.gain.setTargetAtTime(Math.min(0.22, speed * 0.12), now, 0.02);
+    },
+    stop() {
+      if (!ctx) return;
+      gain.gain.setTargetAtTime(0, ctx.currentTime, 0.08);
+    },
+  };
+
+  return scratchEngine;
+}
+
+function wireRecordScratch(record) {
+  const IDLE_SPEED = 360 / 24000; // deg/ms — matches the old 24s/rotation auto-spin
+  let rotation = 0;
+  let dragging = false;
+  let lastAngle = 0;
+  let lastTime = null;
+  let pointerId = null;
+  let startX = 0;
+  let startY = 0;
+  let moved = false;
+  let suppressNextClick = false;
+
+  function angleAt(clientX, clientY) {
+    const rect = record.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    return (Math.atan2(clientY - cy, clientX - cx) * 180) / Math.PI;
+  }
+
+  function apply() {
+    record.style.transform = `rotate(${rotation}deg)`;
+  }
+
+  function tick(now) {
+    if (!dragging) {
+      if (lastTime !== null) rotation += IDLE_SPEED * (now - lastTime);
+      apply();
+    }
+    lastTime = now;
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  record.addEventListener("pointerdown", (e) => {
+    if (e.button !== undefined && e.button !== 0) return;
+    dragging = true;
+    moved = false;
+    startX = e.clientX;
+    startY = e.clientY;
+    lastAngle = angleAt(e.clientX, e.clientY);
+    lastTime = performance.now();
+    pointerId = e.pointerId;
+    record.setPointerCapture(pointerId);
+    record.classList.add("scratching");
+    getScratchEngine().start();
+  });
+
+  record.addEventListener("pointermove", (e) => {
+    if (!dragging || e.pointerId !== pointerId) return;
+    if (Math.hypot(e.clientX - startX, e.clientY - startY) > 4) moved = true;
+
+    const now = performance.now();
+    const angle = angleAt(e.clientX, e.clientY);
+    let delta = angle - lastAngle;
+    if (delta > 180) delta -= 360;
+    if (delta < -180) delta += 360;
+    const dt = Math.max(1, now - lastTime);
+
+    rotation += delta;
+    apply();
+    getScratchEngine().update(delta / dt);
+
+    lastAngle = angle;
+    lastTime = now;
+  });
+
+  function endDrag(e) {
+    if (!dragging || (pointerId !== null && e.pointerId !== pointerId)) return;
+    dragging = false;
+    lastTime = performance.now();
+    record.classList.remove("scratching");
+    getScratchEngine().stop();
+    if (moved) suppressNextClick = true;
+  }
+
+  record.addEventListener("pointerup", endDrag);
+  record.addEventListener("pointercancel", endDrag);
+
+  // A drag that started on the photo label would otherwise still fire a
+  // trailing "click" and pop the file picker — swallow just that one click.
+  record.addEventListener(
+    "click",
+    (e) => {
+      if (suppressNextClick) {
+        e.preventDefault();
+        e.stopPropagation();
+        suppressNextClick = false;
+      }
+    },
+    true
+  );
+}
+
 // --- Build each track card from TRACKS (see tracks-data.js) ---
 
 function buildTrackCard(track, index) {
@@ -210,6 +362,7 @@ TRACKS.slice()
     reel.insertBefore(section, finaleCard);
     revealObserver.observe(section);
     section.querySelectorAll(".photo-frame").forEach(wirePhotoFrame);
+    wireRecordScratch(section.querySelector(".record"));
 
     const lyricsArtist = track.lyricsArtist || track.artist;
     const lyricsTitle = track.lyricsTitle || track.title;

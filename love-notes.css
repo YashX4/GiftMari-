@@ -136,12 +136,14 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: spin 24s linear infinite;
+  cursor: grab;
+  touch-action: none;
+  will-change: transform;
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.record.scratching {
+  cursor: grabbing;
+  filter: brightness(1.05);
 }
 
 .record-label {
