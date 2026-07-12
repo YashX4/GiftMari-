@@ -299,6 +299,32 @@ function wireRecordScratch(record) {
   );
 }
 
+// --- Spotify playback: pause a card's embed the moment its section scrolls
+// out of view, so songs never overlap as she scrolls. Never calls .play()
+// ourselves — starting playback always stays an explicit tap on Spotify's
+// own button inside the embed, so there's no autoplay-policy gamble. ---
+
+function wireSpotifyController(section, spotifyTrackId, IFrameAPI) {
+  const mount = section.querySelector(".spotify-embed-mount");
+  if (!mount) return;
+
+  IFrameAPI.createController(
+    mount,
+    { uri: `spotify:track:${spotifyTrackId}`, width: "100%", height: 152 },
+    (EmbedController) => {
+      const sectionObserver = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) EmbedController.pause();
+          }
+        },
+        { threshold: 0.4 }
+      );
+      sectionObserver.observe(section);
+    }
+  );
+}
+
 // --- Build each track card from TRACKS (see tracks-data.js) ---
 
 function buildTrackCard(track, index) {
@@ -329,16 +355,7 @@ function buildTrackCard(track, index) {
       <h2 class="track-title"></h2>
       <p class="track-artist"></p>
       <div class="spotify-embed">
-        <iframe
-          style="border-radius: 12px"
-          src="https://open.spotify.com/embed/track/${track.spotifyTrackId}?utm_source=generator&theme=0"
-          width="100%"
-          height="152"
-          frameborder="0"
-          allowfullscreen
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-        ></iframe>
+        <div class="spotify-embed-mount"></div>
       </div>
       <div class="lyrics-text">loading lyrics…</div>
     </div>
@@ -355,6 +372,8 @@ const finaleCard = document.querySelector(".finale-card");
 
 document.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
 
+const spotifyMountTargets = [];
+
 TRACKS.slice()
   .sort((a, b) => a.order - b.order)
   .forEach((track, index) => {
@@ -363,6 +382,7 @@ TRACKS.slice()
     revealObserver.observe(section);
     section.querySelectorAll(".photo-frame").forEach(wirePhotoFrame);
     wireRecordScratch(section.querySelector(".record"));
+    spotifyMountTargets.push({ section, spotifyTrackId: track.spotifyTrackId });
 
     const lyricsArtist = track.lyricsArtist || track.artist;
     const lyricsTitle = track.lyricsTitle || track.title;
@@ -370,3 +390,11 @@ TRACKS.slice()
     // rate limit on the free API.
     setTimeout(() => loadLyricsFor(section, lyricsArtist, lyricsTitle, track.highlightLyric), index * 300);
   });
+
+// The iframe-api script tag (loaded after this file, see index.html) calls
+// this once it's ready. By then all the mount divs above already exist.
+window.onSpotifyIframeApiReady = (IFrameAPI) => {
+  spotifyMountTargets.forEach(({ section, spotifyTrackId }) => {
+    wireSpotifyController(section, spotifyTrackId, IFrameAPI);
+  });
+};

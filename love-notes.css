@@ -257,6 +257,11 @@ section {
   margin-bottom: 22px;
 }
 
+.spotify-embed-mount {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
 .lyrics-text {
   background: var(--paper);
   border-radius: 4px;
