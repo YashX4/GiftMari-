@@ -135,8 +135,6 @@ const powerLedEl = document.getElementById("powerLed");
 const hudFrameCountEl = document.getElementById("hudFrameCount");
 const shutterBtn = document.getElementById("shutterBtn");
 const flashOverlayEl = document.getElementById("flashOverlay");
-const fullscreenBtn = document.getElementById("fullscreenBtn");
-const filterGuideItems = Array.from(document.querySelectorAll("#filterGuideList li"));
 
 // ---------------------------------------------------------------------------
 // State
@@ -541,52 +539,7 @@ function renderFlowerBackground(lilyFraction, chrysFraction) {
   flowerCtx.globalCompositeOperation = "source-over";
 }
 
-// Synthesized shutter click (sharp high tick + a lower clunk right after) —
-// no audio file, just filtered noise and a short oscillator burst.
-let shutterAudioCtx = null;
-
-function playShutterSound() {
-  if (!shutterAudioCtx) {
-    shutterAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  const ctx = shutterAudioCtx;
-  if (ctx.state === "suspended") ctx.resume();
-
-  const now = ctx.currentTime;
-
-  const tickBufferSize = Math.round(ctx.sampleRate * 0.03);
-  const tickBuffer = ctx.createBuffer(1, tickBufferSize, ctx.sampleRate);
-  const tickData = tickBuffer.getChannelData(0);
-  for (let i = 0; i < tickBufferSize; i++) tickData[i] = Math.random() * 2 - 1;
-
-  const tickSource = ctx.createBufferSource();
-  tickSource.buffer = tickBuffer;
-  const tickFilter = ctx.createBiquadFilter();
-  tickFilter.type = "highpass";
-  tickFilter.frequency.value = 3500;
-  const tickGain = ctx.createGain();
-  tickGain.gain.setValueAtTime(0.35, now);
-  tickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
-  tickSource.connect(tickFilter).connect(tickGain).connect(ctx.destination);
-  tickSource.start(now);
-  tickSource.stop(now + 0.03);
-
-  const clunkStart = now + 0.045;
-  const clunkOsc = ctx.createOscillator();
-  clunkOsc.type = "square";
-  clunkOsc.frequency.setValueAtTime(180, clunkStart);
-  clunkOsc.frequency.exponentialRampToValueAtTime(90, clunkStart + 0.05);
-  const clunkGain = ctx.createGain();
-  clunkGain.gain.setValueAtTime(0.25, clunkStart);
-  clunkGain.gain.exponentialRampToValueAtTime(0.001, clunkStart + 0.06);
-  clunkOsc.connect(clunkGain).connect(ctx.destination);
-  clunkOsc.start(clunkStart);
-  clunkOsc.stop(clunkStart + 0.07);
-}
-
 function capturePhoto() {
-  playShutterSound();
-
   flashOverlayEl.classList.remove("flash");
   // Force reflow so re-adding the class restarts the animation on rapid clicks.
   void flashOverlayEl.offsetWidth;
@@ -910,28 +863,10 @@ modeButtons.forEach((btn) => {
 startBtn.addEventListener("click", boot);
 shutterBtn.addEventListener("click", capturePhoto);
 
-fullscreenBtn.addEventListener("click", () => {
-  if (document.fullscreenElement) {
-    document.exitFullscreen();
-  } else {
-    document.documentElement.requestFullscreen().catch((err) => {
-      console.error("Fullscreen request failed:", err);
-    });
-  }
-});
-
-function setActiveFilterGuideItem(key) {
-  filterGuideItems.forEach((li) => {
-    li.classList.toggle("active", li.dataset.filterKey === key);
-  });
-}
-
 window.addEventListener("keydown", (e) => {
   if (e.key === "0") {
     activeFilterKey = null;
-    setActiveFilterGuideItem("0");
   } else if (FILTER_PRESETS[e.key]) {
     activeFilterKey = e.key;
-    setActiveFilterGuideItem(e.key);
   }
 });

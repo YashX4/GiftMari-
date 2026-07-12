@@ -24,17 +24,14 @@ html, body {
 
 body {
   margin: 0;
-  min-height: 100vh;
   background: linear-gradient(180deg, #eef1f6 0%, #e2e7ee 50%, #d6dee8 100%);
   color: var(--ink);
   font-family: var(--serif-font);
   display: flex;
   justify-content: center;
-  align-items: center;
 }
 
 .wrap {
-  position: relative;
   width: 100%;
   max-width: 980px;
   padding: 40px 20px 48px;
@@ -43,140 +40,18 @@ body {
   align-items: center;
 }
 
-.top-row {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
 .back-link {
+  align-self: flex-start;
   font-family: var(--script-font);
   font-size: 1.25rem;
   color: var(--muted);
   text-decoration: none;
+  margin-bottom: 16px;
   transition: color 0.15s ease;
 }
 
 .back-link:hover {
   color: var(--accent);
-}
-
-.fullscreen-btn {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 1.1rem;
-  line-height: 1;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(22, 35, 61, 0.2);
-  background: rgba(255, 255, 255, 0.5);
-  color: var(--muted);
-  cursor: pointer;
-  box-shadow: none;
-  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
-}
-
-.fullscreen-btn:hover {
-  color: var(--accent);
-  border-color: rgba(22, 35, 61, 0.4);
-  background: rgba(255, 255, 255, 0.8);
-}
-
-.fullscreen-btn:focus {
-  outline: none;
-}
-
-.fullscreen-btn:focus-visible {
-  outline: 2px solid rgba(22, 35, 61, 0.5);
-  outline-offset: 2px;
-}
-
-/* --- Digicam filter guide: fills the otherwise-empty gutter beside the
-   camera on wide screens; drops inline below the controls on narrow ones. --- */
-
-.filter-guide {
-  position: fixed;
-  right: clamp(16px, 3vw, 48px);
-  top: 50%;
-  transform: translateY(-50%);
-  width: 190px;
-  padding: 16px 18px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(22, 35, 61, 0.12);
-  backdrop-filter: blur(6px);
-  box-shadow: 0 10px 30px rgba(22, 35, 61, 0.12);
-}
-
-.filter-guide-title {
-  font-family: var(--script-font);
-  font-size: 1.2rem;
-  color: var(--ink);
-  margin: 0 0 10px;
-}
-
-.filter-guide-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.filter-guide-list li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 6px;
-  border-radius: 6px;
-  font-size: 0.82rem;
-  color: var(--muted);
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-.filter-guide-list li.active {
-  background: rgba(122, 74, 34, 0.14);
-  color: var(--ink);
-  font-weight: 600;
-}
-
-.filter-key {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  flex: none;
-  border-radius: 4px;
-  background: rgba(22, 35, 61, 0.1);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.72rem;
-  color: var(--ink);
-}
-
-.filter-guide-list li.active .filter-key {
-  background: var(--accent);
-  color: var(--paper);
-}
-
-.filter-guide-hint {
-  margin: 12px 0 0;
-  font-family: var(--script-font);
-  font-size: 0.95rem;
-  color: var(--muted);
-}
-
-@media (max-width: 1600px) {
-  .filter-guide {
-    position: static;
-    transform: none;
-    width: 100%;
-    max-width: 460px;
-    margin-top: 22px;
-    order: 3;
-  }
 }
 
 .camera-caption {
